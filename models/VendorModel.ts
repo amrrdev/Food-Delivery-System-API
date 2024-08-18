@@ -13,7 +13,7 @@ interface VendorDocument extends Document {
   serviceAvailable: boolean;
   rating: number;
   coverImage: string[];
-  // foods: any;
+  foods: mongoose.Schema.Types.ObjectId[];
   comparePasswords(candidatePassword: string, encryptedPassword: string): Promise<boolean>;
 }
 
@@ -49,12 +49,12 @@ const VendorSchema = new mongoose.Schema<VendorDocument>(
     serviceAvailable: { type: Boolean },
     rating: { type: Number },
     coverImage: { type: [String] },
-    // foods: [
-    //   {
-    //     type: mongoose.Schema.ObjectId,
-    //     ref: "food",
-    //   },
-    // ],
+    foods: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Food",
+      },
+    ],
   },
   {
     timestamps: { createdAt: true, updatedAt: true },
@@ -75,7 +75,10 @@ VendorSchema.pre("save", async function (next) {
   next();
 });
 
-VendorSchema.methods.comparePasswords = async function (candidatePassword: string, encryptedPassword: string) {
+VendorSchema.methods.comparePasswords = async function (
+  candidatePassword: string,
+  encryptedPassword: string
+) {
   return await bcrypt.compare(candidatePassword, encryptedPassword);
 };
 
