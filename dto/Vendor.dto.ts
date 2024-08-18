@@ -13,3 +13,16 @@ export interface VendorLoginInput {
   email: string;
   password: string;
 }
+
+export interface UpdateVendorInput {
+  name: string;
+  address: string;
+  foodType: string[];
+  phone: string;
+}
+
+export interface VendorPayload {
+  id: string;
+  email: string;
+  name: string;
+}
