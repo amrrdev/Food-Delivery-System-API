@@ -12,7 +12,7 @@ interface VendorDocument extends Document {
   password: string;
   serviceAvailable: boolean;
   rating: number;
-  coverImage: string[];
+  coverImages: string[];
   foods: mongoose.Schema.Types.ObjectId[];
   comparePasswords(candidatePassword: string, encryptedPassword: string): Promise<boolean>;
 }
@@ -48,7 +48,7 @@ const VendorSchema = new mongoose.Schema<VendorDocument>(
     address: { type: String },
     serviceAvailable: { type: Boolean },
     rating: { type: Number },
-    coverImage: { type: [String] },
+    coverImages: { type: [String] },
     foods: [
       {
         type: mongoose.Schema.ObjectId,
