@@ -129,6 +129,9 @@ export const addFood = asyncWrapper(async (req: Request, res: Response, next: Ne
 
   const { name, price, category, description, foodTypes, readyTime } = req.body as CreateFoodInput;
 
+  const files = req.files as Express.Multer.File[];
+  const images = files.map((file: Express.Multer.File) => file.filename);
+
   const food = await Food.create({
     name,
     price,
@@ -136,7 +139,7 @@ export const addFood = asyncWrapper(async (req: Request, res: Response, next: Ne
     description,
     foodTypes,
     readyTime,
-    images: ["hello.pg"],
+    images,
     vendor: vendor._id,
   });
 
@@ -164,3 +167,20 @@ export const getFoods = asyncWrapper(async (req: Request, res: Response, next: N
     data: { foods },
   });
 });
+
+export const updateVendorCoverImage = asyncWrapper(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const vendor = await checkForExistingVendor(req, next);
+    if (!vendor) return;
+
+    const files = req.files as Express.Multer.File[];
+    const images = files.map((file: Express.Multer.File) => file.filename);
+    vendor.coverImages.push(...images);
+    await vendor.save();
+
+    res.status(StatusCodes.OK).json({
+      status: "success",
+      data: { vendor },
+    });
+  }
+);
