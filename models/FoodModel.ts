@@ -1,7 +1,7 @@
 import mongoose, { Model, Document, Schema } from "mongoose";
 import { EnumType } from "typescript";
 
-interface FoodDocument extends Document {
+export interface FoodDocument extends Document {
   vendor: mongoose.Schema.Types.ObjectId;
   name: string;
   description: string;
@@ -41,8 +41,8 @@ const FoodSchema = new mongoose.Schema<FoodDocument>(
       type: Number,
       min: [1, "Rating must be at least 1"],
       max: [5, "Rating must be at most 5"],
-      // required: [true, "A food must have a rating"],
     },
+    readyTime: Number,
     images: [String],
     vendor: {
       type: mongoose.Types.ObjectId,
