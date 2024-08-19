@@ -26,3 +26,8 @@ export interface VendorPayload {
   email: string;
   name: string;
 }
+
+export interface VendorQuery {
+  pincode: string;
+  serviceAvailable?: boolean;
+}
