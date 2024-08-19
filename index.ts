@@ -1,3 +1,5 @@
+import path from "node:path";
+
 import { adminRouter, vendorRouter } from "./routes";
 import { handleGlobalErrors, handleNotFound } from "./middlewares";
 
@@ -10,6 +12,7 @@ app.use(cookieParser());
 
 // /admin/vendros
 // /admin/vendros/:id
+app.use("/images", express.static(path.join(__dirname, "./images")));
 app.use("/admin", adminRouter);
 
 // /vendor/login
