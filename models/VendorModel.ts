@@ -1,7 +1,7 @@
 import mongoose, { Model, Document, Schema } from "mongoose";
 import bcrypt from "bcrypt";
 
-interface VendorDocument extends Document {
+export interface VendorDocument extends Document {
   name: string;
   ownerName: string;
   foodType: string[];
