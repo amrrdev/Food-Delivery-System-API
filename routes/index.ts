@@ -1,3 +1,4 @@
 export * from "./adminRoute";
 export * from "./vendorRoute";
-// export * from "./authRoute";
+export * from "./shoppingRoute";
+export * from "./customerAuthRoute";
