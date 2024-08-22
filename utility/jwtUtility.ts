@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
-import { VendorPayload } from "../dto";
+import { AuthPayload } from "../dto";
 import { Response } from "express";
 
-export const generateJWTToken = (payload: VendorPayload) => {
+export const generateJWTToken = (payload: AuthPayload) => {
   return jwt.sign(payload, process.env.JWT_SECRET as string, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
@@ -14,12 +14,12 @@ export const verifyJWTToken = (token: string) => {
       if (err) {
         return reject(err.message);
       }
-      resolve(decoded as VendorPayload);
+      resolve(decoded as AuthPayload);
     });
   });
 };
 
-export const attachCookiesToResponse = (res: Response, payload: VendorPayload) => {
+export const attachCookiesToResponse = (res: Response, payload: AuthPayload) => {
   const token = generateJWTToken(payload);
 
   res.cookie("token", token, {
