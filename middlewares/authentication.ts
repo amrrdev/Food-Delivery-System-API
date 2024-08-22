@@ -3,7 +3,7 @@ import asyncWrapper from "../utility/asyncWrapper";
 import AppError from "../utility/AppError";
 import { StatusCodes } from "http-status-codes";
 import { verifyJWTToken } from "./../utility";
-import { Vendor } from "../models";
+import { Customer, Vendor } from "../models";
 import { AuthPayload } from "../dto/Auth.dto";
 
 declare global {
@@ -25,14 +25,20 @@ export const checkAuthentication = asyncWrapper(
         )
       );
     }
+
     const decoded = (await verifyJWTToken(token)) as AuthPayload;
 
-    const vendor = await Vendor.findById(decoded.id);
-
-    if (!vendor) {
-      return next(new AppError("User no longer exist", StatusCodes.UNAUTHORIZED));
+    if ("verified" in decoded) {
+      const customer = await Customer.findById(decoded.id);
+      if (!customer) {
+        return next(new AppError("Customer no longer exist", StatusCodes.NOT_FOUND));
+      }
+    } else {
+      const vendor = await Vendor.findById(decoded.id);
+      if (!vendor) {
+        return next(new AppError("Vendor no longer exist", StatusCodes.NOT_FOUND));
+      }
     }
-
     req.user = decoded;
     next();
   }
