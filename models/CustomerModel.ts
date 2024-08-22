@@ -23,12 +23,12 @@ const CustomerSchema = new mongoose.Schema<CustomerDocument>(
     address: { type: String, required: [true, "Please provide your address"] },
     phone: { type: String, required: [true, "Please provide your mobile phone"] },
     email: { type: String, unique: true, required: [true, "Please provide your email"] },
-    password: { type: String, required: true },
+    password: { type: String, required: true, select: false },
     latitude: { type: Number, required: true },
     longitude: { type: Number, required: true },
     verified: { type: Boolean, required: true },
-    otp: { type: String, required: true }, // ---- This is for OTP verifications
-    otpExpiry: { type: Number, required: true },
+    otp: { type: String, required: true, select: false }, // ---- This is for OTP verifications
+    otpExpiry: { type: Number, required: true, select: false },
   },
   {
     timestamps: { createdAt: true, updatedAt: true },
