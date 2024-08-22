@@ -1,4 +1,3 @@
-import express from "express";
 import {
   customerDeleteProfile,
   customerLogin,
@@ -7,6 +6,8 @@ import {
   customerVerify,
   sendDeleteProfileOTP,
 } from "../controllers";
+
+import express from "express";
 import { checkAuthentication } from "../middlewares";
 
 const router = express.Router();
