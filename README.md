@@ -2,7 +2,9 @@
 
 The **Food Delivery System API** is an advanced backend solution crafted to facilitate seamless food ordering and vendor services. Built using Node.js and TypeScript, this API leverages a robust technology stack including Mongoose for MongoDB integration, Express.js for streamlined routing, and JWT for secure authentication.
 
-## Work in Progress: This project is actively evolving and still under construction. Check back soon for exciting updates and enhancements
+## Work in Progress
+
+**This project is actively evolving and still under construction.** Check back soon for exciting updates and enhancements!
 
 ## Key Features
 
