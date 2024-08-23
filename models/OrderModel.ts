@@ -2,18 +2,25 @@ import mongoose, { Document } from "mongoose";
 import { OrderInputs } from "../dto";
 
 export interface OrderDocument extends Document {
-  orderID: string;
-  items: [any];
+  orderID: string; // 973287 for customer screen
+  vendorID: string;
+  items: any[];
   totalAmount: number;
   orderDate: Date;
   paidThrought: string;
   paymentResponse: string;
   orderStatus: string;
+  remarks: string; // for cancled order
+  deliveryID: string;
+  appliedOffers: boolean;
+  offerId: string;
+  readyTime: number; // max 60 minutes
 }
 
 const OrderSchema = new mongoose.Schema<OrderDocument>(
   {
     orderID: { type: String, required: true, unique: true },
+    vendorID: { type: String, required: true },
     items: [
       {
         food: {
@@ -35,6 +42,11 @@ const OrderSchema = new mongoose.Schema<OrderDocument>(
     orderStatus: { type: String },
     paidThrought: { type: String },
     paymentResponse: { type: String },
+    remarks: { type: String },
+    deliveryID: { type: String },
+    offerId: { type: String },
+    readyTime: { type: Number },
+    appliedOffers: { type: Boolean },
   },
   {
     toJSON: {
