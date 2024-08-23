@@ -3,8 +3,11 @@ import path from "node:path";
 import {
   addFood,
   deleteMyProfile,
+  getCurrentOrders,
   getFoods,
+  getOrderDetailsById,
   getVendorProfile,
+  processOrder,
   updateVendorCoverImage,
   updateVendorProfile,
   updateVendorService,
@@ -36,5 +39,9 @@ router.route("/profile").get(getVendorProfile).patch(updateVendorProfile).delete
 router.route("/coverImage").patch(uploadImages, updateVendorCoverImage);
 router.route("/service").patch(updateVendorService);
 router.route("/foods").get(getFoods).post(uploadImages, addFood);
+
+router.route("/orders").get(getCurrentOrders);
+router.route("/order/:id").get(getOrderDetailsById);
+router.route("/order/:id/process").patch(processOrder);
 
 export { router as vendorRouter };
