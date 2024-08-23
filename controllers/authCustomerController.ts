@@ -39,6 +39,7 @@ export const customerSignup = asyncWrapper(
       otpExpiry,
       latitude: 0,
       longitude: 0,
+      orders: [],
     });
 
     res.status(StatusCodes.OK).json({
