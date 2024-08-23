@@ -1,5 +1,7 @@
 import mongoose, { Model, Schema, Document } from "mongoose";
 import bcrypt from "bcrypt";
+import { OrderDocument } from "./OrderModel";
+import { OrderInputs } from "../dto";
 
 export interface CustomerDocument extends Document {
   firstName: string;
@@ -13,6 +15,8 @@ export interface CustomerDocument extends Document {
   otpExpiry: number;
   latitude: number;
   longitude: number;
+  orders: mongoose.Schema.Types.ObjectId[];
+  cart: any[];
   comparePasswords(candidatePassword: string, encryptedPassword: string): Promise<boolean>;
 }
 
@@ -27,6 +31,13 @@ const CustomerSchema = new mongoose.Schema<CustomerDocument>(
     latitude: { type: Number, required: true },
     longitude: { type: Number, required: true },
     verified: { type: Boolean, required: true },
+    cart: [
+      {
+        food: { type: mongoose.Schema.Types.ObjectId, ref: "Food", required: true },
+        quantity: Number,
+      },
+    ],
+    orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],
     otp: { type: String, required: true, select: false }, // ---- This is for OTP verifications
     otpExpiry: { type: Number, required: true, select: false },
   },
