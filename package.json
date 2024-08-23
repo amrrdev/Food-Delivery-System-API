@@ -4,7 +4,7 @@
   "main": "index.ts",
   "scripts": {
     "start:dev": "cross-env NODE_ENV=development nodemon server.ts",
-    "start:prod": "cross-env NODE_ENV=production nodemon server.ts"
+    "start:prod": "cross-env NODE_ENV=production node server.ts"
   },
   "author": "",
   "license": "ISC",
