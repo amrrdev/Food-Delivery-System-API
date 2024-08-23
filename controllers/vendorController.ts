@@ -7,6 +7,7 @@ import { Food, Vendor } from "../models";
 import { attachCookiesToResponse, generateJWTToken } from "../utility";
 import { CreateFoodInput } from "../dto/Food.dto";
 import mongoose from "mongoose";
+import { Order } from "../models/OrderModel";
 
 const checkForExistingVendor = async (req: Request, next: NextFunction, populateField?: string) => {
   const user = req.user;
@@ -181,6 +182,65 @@ export const updateVendorCoverImage = asyncWrapper(
     res.status(StatusCodes.OK).json({
       status: "success",
       data: { vendor },
+    });
+  }
+);
+
+export const getCurrentOrders = asyncWrapper(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const vendor = req.user;
+    if (!vendor) {
+      return next(new AppError("There's no user exist", StatusCodes.NOT_FOUND));
+    }
+    const orders = await Order.find({ vendorID: vendor.id }).populate("items.food");
+
+    if (!orders) {
+      return next(new AppError("There's no orders for this vendor", StatusCodes.NOT_FOUND));
+    }
+
+    res.status(200).json({ orders });
+  }
+);
+
+export const getOrderDetailsById = asyncWrapper(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const orderId = req.params.id;
+    const vendor = req.user;
+    if (!vendor) {
+      return next(new AppError("There's no vendor exist", StatusCodes.NOT_FOUND));
+    }
+
+    const order = await Order.findOne({ _id: orderId, vendorID: vendor.id }).populate("items.food");
+
+    if (!order) {
+      return next(new AppError("There's no order with for this vendor", StatusCodes.NOT_FOUND));
+    }
+    res.status(StatusCodes.OK).json({
+      status: "success",
+      order,
+    });
+  }
+);
+
+export const processOrder = asyncWrapper(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const orderID = req.params.id;
+    const { status, remarks, time } = req.body;
+
+    const order = await Order.findById(orderID);
+    console.log(order);
+    if (!order) {
+      return next(new AppError("There's no order wth is ID", StatusCodes.NOT_FOUND));
+    }
+    order.orderStatus = status;
+    order.remarks = remarks;
+    if (time) {
+      order.readyTime = time;
+    }
+    const orderResult = await order.save();
+    res.status(StatusCodes.OK).json({
+      status: "success",
+      order: orderResult,
     });
   }
 );
