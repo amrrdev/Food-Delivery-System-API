@@ -21,9 +21,10 @@ export const createOrder = asyncWrapper(async (req: Request, res: Response, next
 
   const cart = req.body as OrderInputs[];
 
-  const cartItems: Array<{ food: FoodDocument; quantity: number }> = [];
+  const cartItems: Array<{ food: mongoose.Schema.Types.ObjectId; quantity: number }> = [];
   let netAmount = 0.0;
-
+  let vendorID;
+  console.log("a");
   const foods = await Food.find()
     .where("_id")
     .in(cart.map((item) => item.id))
@@ -37,27 +38,39 @@ export const createOrder = asyncWrapper(async (req: Request, res: Response, next
     const cartItem = cart.find((item) => item.id === String(food._id));
 
     if (cartItem) {
+      vendorID = food.vendor;
       netAmount += cartItem.quantity * food.price;
-      cartItems.push({ food: food, quantity: cartItem.quantity });
+      cartItems.push({
+        food: food._id as mongoose.Schema.Types.ObjectId,
+        quantity: cartItem.quantity,
+      });
     }
+    console.log(food);
   });
 
   const order = await Order.create({
     orderID: orderId,
+    vendorID,
     orderDate: new Date(),
     items: cartItems,
     totalAmount: netAmount,
     paidThrought: "COD",
     paymentResponse: "",
     orderStatus: "Waiting",
+    remarks: "",
+    deliveryID: "",
+    appliedOffers: false,
+    offerId: "",
+    readyTime: 25,
   });
 
   if (!order) {
     return next(new AppError("Error While creting an order", StatusCodes.INTERNAL_SERVER_ERROR));
   }
-
+  profile.cart = [];
   profile.orders.push(order._id as mongoose.Schema.Types.ObjectId);
   await profile.save();
+
   res.status(StatusCodes.OK).json({
     status: "success",
     order,
@@ -65,9 +78,42 @@ export const createOrder = asyncWrapper(async (req: Request, res: Response, next
 });
 
 export const getAllOrders = asyncWrapper(
-  async (req: Request, res: Response, next: NextFunction) => {}
+  async (req: Request, res: Response, next: NextFunction) => {
+    const customer = req.user;
+
+    if (!customer) {
+      return next(new AppError("There's no customer exist", StatusCodes.NOT_FOUND));
+    }
+    const orders = await Customer.findById(customer.id).populate({
+      path: "orders",
+      model: Order,
+    });
+    res.status(StatusCodes.OK).json({
+      status: "success",
+      length: orders?.orders.length,
+      orders: orders?.orders,
+    });
+  }
 );
 
 export const getOrderById = asyncWrapper(
-  async (req: Request, res: Response, next: NextFunction) => {}
+  async (req: Request, res: Response, next: NextFunction) => {
+    const orderID = req.params.id;
+
+    if (!orderID) {
+      return next(new AppError("There's no ID specificed", StatusCodes.BAD_REQUEST));
+    }
+
+    // TODO: Fix populations
+    const order = await Order.findById(orderID);
+
+    if (!order) {
+      return next(new AppError("There's no order with this ID", StatusCodes.NOT_FOUND));
+    }
+
+    res.status(StatusCodes.OK).json({
+      status: "success",
+      order,
+    });
+  }
 );
