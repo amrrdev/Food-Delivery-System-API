@@ -4,3 +4,4 @@ export * from "./shoppingController";
 export * from "./authCustomerController";
 export * from "./customerController";
 export * from "./cartController";
+export * from "./offerController";
