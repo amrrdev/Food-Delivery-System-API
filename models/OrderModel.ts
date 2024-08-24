@@ -7,13 +7,7 @@ export interface OrderDocument extends Document {
   items: any[];
   totalAmount: number;
   orderDate: Date;
-  paidThrought: string;
-  paymentResponse: string;
   orderStatus: string;
-  remarks: string; // for cancled order
-  deliveryID: string;
-  appliedOffers: boolean;
-  offerId: string;
   readyTime: number; // max 60 minutes
 }
 
@@ -35,18 +29,13 @@ const OrderSchema = new mongoose.Schema<OrderDocument>(
       type: Number,
       required: true,
     },
+
     orderDate: {
       type: Date,
       required: true,
     },
     orderStatus: { type: String },
-    paidThrought: { type: String },
-    paymentResponse: { type: String },
-    remarks: { type: String },
-    deliveryID: { type: String },
-    offerId: { type: String },
     readyTime: { type: Number },
-    appliedOffers: { type: Boolean },
   },
   {
     toJSON: {
