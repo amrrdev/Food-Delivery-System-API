@@ -4,10 +4,35 @@ import AppError from "../utility/AppError";
 import { StatusCodes } from "http-status-codes";
 import asyncWrapper from "../utility/asyncWrapper";
 import { Food, Vendor } from "../models";
-import { attachCookiesToResponse, generateJWTToken } from "../utility";
+import { attachCookiesToResponse } from "../utility";
 import { CreateFoodInput } from "../dto/Food.dto";
 import mongoose from "mongoose";
 import { Order } from "../models/OrderModel";
+import { v2 as cloudinary } from "cloudinary";
+import { UploadApiResponse } from "cloudinary";
+
+import fs from "node:fs";
+
+const deleteUploadedImages = (req: Request) => {
+  const files = req.files as Express.Multer.File[];
+  files.forEach((file) => fs.unlinkSync(file.path));
+};
+
+const uploadImagesToClouninary = async (req: Request, next: NextFunction) => {
+  const files = req.files as Express.Multer.File[];
+
+  if (!files || files.length === 0) {
+    return next(new AppError("No images were uploaded", StatusCodes.BAD_REQUEST));
+  }
+  const imageUploadPromises = files.map(async (file: Express.Multer.File) => {
+    return await cloudinary.uploader.upload(file.path, {
+      use_filename: true,
+      folder: "food-deliver-system",
+    });
+  });
+
+  return await Promise.all(imageUploadPromises);
+};
 
 const checkForExistingVendor = async (req: Request, next: NextFunction, populateField?: string) => {
   const user = req.user;
@@ -111,7 +136,9 @@ export const updateVendorService = asyncWrapper(
   async (req: Request, res: Response, next: NextFunction) => {
     const vendor = await checkForExistingVendor(req, next);
 
-    if (!vendor) return;
+    if (!vendor) {
+      return next(new AppError("Vendor not logged in", StatusCodes.UNAUTHORIZED));
+    }
 
     vendor.serviceAvailable = !vendor.serviceAvailable;
 
@@ -130,8 +157,10 @@ export const addFood = asyncWrapper(async (req: Request, res: Response, next: Ne
 
   const { name, price, category, description, foodTypes, readyTime } = req.body as CreateFoodInput;
 
-  const files = req.files as Express.Multer.File[];
-  const images = files.map((file: Express.Multer.File) => file.filename);
+  const uploadResults = (await uploadImagesToClouninary(req, next)) as UploadApiResponse[];
+  const images = uploadResults.map((result) => result.secure_url);
+
+  deleteUploadedImages(req);
 
   const food = await Food.create({
     name,
@@ -174,8 +203,10 @@ export const updateVendorCoverImage = asyncWrapper(
     const vendor = await checkForExistingVendor(req, next);
     if (!vendor) return;
 
-    const files = req.files as Express.Multer.File[];
-    const images = files.map((file: Express.Multer.File) => file.filename);
+    const uploadResults = (await uploadImagesToClouninary(req, next)) as UploadApiResponse[];
+
+    const images = uploadResults.map((result) => result.secure_url);
+
     vendor.coverImages.push(...images);
     await vendor.save();
 
@@ -233,7 +264,6 @@ export const processOrder = asyncWrapper(
       return next(new AppError("There's no order wth is ID", StatusCodes.NOT_FOUND));
     }
     order.orderStatus = status;
-    order.remarks = remarks;
     if (time) {
       order.readyTime = time;
     }
