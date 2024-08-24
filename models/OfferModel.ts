@@ -38,6 +38,7 @@ const OfferSchema = new mongoose.Schema<OfferDocument>(
   },
   {
     timestamps: { createdAt: true, updatedAt: true },
+
     toJSON: {
       transform(doc, returnJSObject) {
         delete returnJSObject.__v;
