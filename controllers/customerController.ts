@@ -1,13 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 
 import asyncWrapper from "../utility/asyncWrapper";
-import { Customer } from "../models";
+import { Customer, Transaction } from "../models";
 import AppError from "../utility/AppError";
 import { StatusCodes } from "http-status-codes";
 import { plainToClass } from "class-transformer";
-import { UpdateCustomerProfileInput } from "../dto";
+import { CustomerPaymentOfferDTO, UpdateCustomerProfileInput } from "../dto";
 import { validate } from "class-validator";
 import { handleValidationErrors } from "../utility";
+import { Offer } from "../models/OfferModel";
 
 export const customerProfile = asyncWrapper(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -59,3 +60,25 @@ export const customerUpdateProfile = asyncWrapper(
     });
   }
 );
+
+export const verifyOffer = asyncWrapper(async (req: Request, res: Response, next: NextFunction) => {
+  const offerId = req.params.id as string;
+
+  const customer = req.user;
+
+  if (!customer) {
+    return next(new AppError("There's no customer exist, please login", StatusCodes.NOT_FOUND));
+  }
+
+  const appliedOffers = await Offer.findOne({ _id: offerId, isActive: true });
+
+  if (!appliedOffers) {
+    return next(new AppError("There's no offers with this id", StatusCodes.NOT_FOUND));
+  }
+
+  res.status(StatusCodes.OK).json({
+    status: "success",
+    message: "offer verified",
+    offer: appliedOffers,
+  });
+});
