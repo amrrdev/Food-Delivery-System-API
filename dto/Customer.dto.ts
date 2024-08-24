@@ -57,3 +57,9 @@ export interface CustomerPayload {
   email: string;
   verified: boolean;
 }
+
+export interface CustomerPaymentOfferDTO {
+  amount: number;
+  paymentMode: string;
+  offerId?: string;
+}
