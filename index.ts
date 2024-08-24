@@ -7,6 +7,7 @@ import {
   customerAuthRoute,
   customerRoute,
 } from "./routes";
+
 import { handleGlobalErrors, handleNotFound } from "./middlewares";
 import { v2 as cloudinary } from "cloudinary";
 
