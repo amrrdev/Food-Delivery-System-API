@@ -2,12 +2,15 @@ import path from "node:path";
 
 import {
   addFood,
+  addOffer,
   deleteMyProfile,
+  getAllOffers,
   getCurrentOrders,
   getFoods,
   getOrderDetailsById,
   getVendorProfile,
   processOrder,
+  updateOffer,
   updateVendorCoverImage,
   updateVendorProfile,
   updateVendorService,
@@ -40,8 +43,13 @@ router.route("/coverImage").patch(uploadImages, updateVendorCoverImage);
 router.route("/service").patch(updateVendorService);
 router.route("/foods").get(getFoods).post(uploadImages, addFood);
 
+// Orders Route
 router.route("/orders").get(getCurrentOrders);
 router.route("/order/:id").get(getOrderDetailsById);
 router.route("/order/:id/process").patch(processOrder);
+
+// Offers Route
+router.route("/offers").get(getAllOffers).post(addOffer);
+router.route("/offer/:id").put(updateOffer);
 
 export { router as vendorRouter };
