@@ -2,29 +2,32 @@ import { Request, Response, NextFunction } from "express";
 import AppError from "../utility/AppError";
 import { StatusCodes } from "http-status-codes";
 import asyncWrapper from "../utility/asyncWrapper";
-import { Customer, Food, FoodDocument } from "../models";
+import { Customer, Food, FoodDocument, Transaction, Vendor } from "../models";
 import { OrderInputs } from "../dto";
 import { Order } from "../models/OrderModel";
 import mongoose from "mongoose";
+import { Offer } from "../models/OfferModel";
 
 export const createOrder = asyncWrapper(async (req: Request, res: Response, next: NextFunction) => {
   const customer = req.user;
+
   if (!customer) {
     return next(new AppError("There's no customer exist, please login", StatusCodes.NOT_FOUND));
   }
 
+  const cart = req.body.cart as OrderInputs[];
   const orderId = `${Math.floor(Math.random() * 8999) + 1000}`;
 
   const profile = await Customer.findById(customer.id);
 
-  if (!profile) return;
-
-  const cart = req.body as OrderInputs[];
+  if (!profile) {
+    return next(new AppError("Customer are not logged in", StatusCodes.UNAUTHORIZED));
+  }
 
   const cartItems: Array<{ food: mongoose.Schema.Types.ObjectId; quantity: number }> = [];
   let netAmount = 0.0;
-  let vendorID;
-  console.log("a");
+  let vendorID: any;
+
   const foods = await Food.find()
     .where("_id")
     .in(cart.map((item) => item.id))
@@ -45,28 +48,37 @@ export const createOrder = asyncWrapper(async (req: Request, res: Response, next
         quantity: cartItem.quantity,
       });
     }
-    console.log(food);
   });
+
+  let discount = 0;
+  let finalAmount = netAmount;
+
+  if (req.body.offerId) {
+    const offer = await Offer.findById(req.body.offerId);
+
+    if (offer && offer.isActive && new Date() < offer.expirationDate) {
+      discount = (netAmount * offer.discountPercentage) / 100;
+      finalAmount = netAmount - discount;
+    } else {
+      return next(new AppError("Invalid or expired offer", StatusCodes.BAD_REQUEST));
+    }
+  }
 
   const order = await Order.create({
     orderID: orderId,
     vendorID,
     orderDate: new Date(),
     items: cartItems,
-    totalAmount: netAmount,
-    paidThrought: "COD",
-    paymentResponse: "",
+    totalAmount: finalAmount,
     orderStatus: "Waiting",
-    remarks: "",
     deliveryID: "",
-    appliedOffers: false,
-    offerId: "",
     readyTime: 25,
   });
 
   if (!order) {
     return next(new AppError("Error While creting an order", StatusCodes.INTERNAL_SERVER_ERROR));
   }
+
   profile.cart = [];
   profile.orders.push(order._id as mongoose.Schema.Types.ObjectId);
   await profile.save();
@@ -84,10 +96,12 @@ export const getAllOrders = asyncWrapper(
     if (!customer) {
       return next(new AppError("There's no customer exist", StatusCodes.NOT_FOUND));
     }
+
     const orders = await Customer.findById(customer.id).populate({
       path: "orders",
       model: Order,
     });
+
     res.status(StatusCodes.OK).json({
       status: "success",
       length: orders?.orders.length,
@@ -104,8 +118,7 @@ export const getOrderById = asyncWrapper(
       return next(new AppError("There's no ID specificed", StatusCodes.BAD_REQUEST));
     }
 
-    // TODO: Fix populations
-    const order = await Order.findById(orderID);
+    const order = await Order.findById(orderID).populate("items.food");
 
     if (!order) {
       return next(new AppError("There's no order with this ID", StatusCodes.NOT_FOUND));
