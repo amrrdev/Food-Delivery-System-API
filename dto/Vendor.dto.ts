@@ -31,3 +31,13 @@ export interface VendorQuery {
   pincode: string;
   serviceAvailable?: boolean;
 }
+export interface VendorOfferInput {
+  offerType: string; //Vendor // Generic
+  vendors: any[];
+  title: string;
+  description: string;
+  expirationDate: Date;
+  discountPercentage: number; //min order amount should 300 EG
+  pincode: string; // OFFER WITHIN SPECIFIC AREA
+  isActive: boolean;
+}
