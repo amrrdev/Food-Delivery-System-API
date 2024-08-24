@@ -4,6 +4,7 @@ import { Food, FoodDocument, Vendor, VendorDocument } from "../models";
 import AppError from "../utility/AppError";
 import { StatusCodes } from "http-status-codes";
 import { VendorQuery } from "./../dto";
+import { Offer, OfferDocument } from "../models/OfferModel";
 
 type PopulatedVendorDocument = VendorDocument & { foods: FoodDocument[] };
 type EntityResponse = VendorDocument | VendorDocument[] | FoodDocument[];
@@ -16,7 +17,10 @@ const foodsResponse = (res: Response, foods: FoodDocument[]) => {
   });
 };
 
-const vendorResponse = (res: Response, restaurant: VendorDocument | VendorDocument[]) => {
+const vendorResponse = (
+  res: Response,
+  restaurant: VendorDocument | VendorDocument[] | OfferDocument[]
+) => {
   res.status(StatusCodes.OK).json({
     status: "success",
     length: Array.isArray(restaurant) ? restaurant.length : undefined,
@@ -132,5 +136,18 @@ export const getTopRestaurants = asyncWrapper(
     }
 
     vendorResponse(res, topRestaurants);
+  }
+);
+
+export const getAvailableOffers = asyncWrapper(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const pincode = req.params.pincode as string;
+
+    const offers = await Offer.find({ pincode, isActive: true });
+    if (!offers || offers.length === 0) {
+      return next(new AppError("There's no offers within this pincode", StatusCodes.NOT_FOUND));
+    }
+
+    vendorResponse(res, offers);
   }
 );
