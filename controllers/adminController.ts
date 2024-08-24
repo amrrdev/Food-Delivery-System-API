@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { CreateVendorInput } from "../dto";
-import { Vendor } from "../models";
+import { Transaction, Vendor } from "../models";
 import AppError from "../utility/AppError";
 import { StatusCodes } from "http-status-codes";
 import asyncWrapper from "../utility/asyncWrapper";
@@ -86,6 +86,33 @@ export const deleteVendor = asyncWrapper(
     res.status(StatusCodes.OK).json({
       status: "success",
       message: "Deleted Successfully",
+    });
+  }
+);
+
+export const getAlltransaction = asyncWrapper(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const transaction = await Transaction.find();
+    if (!transaction || transaction.length === 0) {
+      return next(new AppError("There's no transaction", StatusCodes.NOT_FOUND));
+    }
+    res.status(StatusCodes.OK).json({
+      status: "success",
+      transaction,
+    });
+  }
+);
+
+export const getTransactionById = asyncWrapper(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const transaction = await Transaction.findById(req.params.id);
+
+    if (!transaction) {
+      return next(new AppError("There's no transaction", StatusCodes.NOT_FOUND));
+    }
+    res.status(StatusCodes.OK).json({
+      status: "success",
+      transaction,
     });
   }
 );
