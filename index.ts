@@ -10,6 +10,10 @@ import {
 
 import { handleGlobalErrors, handleNotFound } from "./middlewares";
 import { v2 as cloudinary } from "cloudinary";
+import rateLimit from "express-rate-limit";
+import helmet from "helmet";
+import cors from "cors";
+import mongoSanitize from "express-mongo-sanitize";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -22,6 +26,15 @@ import cookieParser from "cookie-parser";
 import morgan from "morgan";
 
 const app = express();
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+  })
+);
+app.use(helmet());
+app.use(cors());
+app.use(mongoSanitize());
 
 if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
