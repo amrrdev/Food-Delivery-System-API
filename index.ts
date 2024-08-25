@@ -29,12 +29,12 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/images", express.static(path.join(__dirname, "./images")));
-app.use("/admin", adminRouter);
+app.use("/api/v1/admin", adminRouter);
 
-app.use("/vendor", vendorRouter);
-app.use("/shopping", shoppingRouter);
-app.use("/auth", customerAuthRoute);
-app.use("/customer", customerRoute);
+app.use("/api/v1/vendor", vendorRouter);
+app.use("/api/v1/shopping", shoppingRouter);
+app.use("/api/v1/auth", customerAuthRoute);
+app.use("/api/v1/customer", customerRoute);
 
 app.use(handleNotFound);
 app.use(handleGlobalErrors);
