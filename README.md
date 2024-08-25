@@ -24,10 +24,6 @@ This document provides an overview of our API endpoints. For a complete, interac
 
 ## Table of Contents
 
-[Your table of contents here]
-
-## Table of Contents
-
 1. [Admin Endpoints](#admin-endpoints)
 2. [Vendor Endpoints](#vendor-endpoints)
 3. [Shopping Endpoints](#shopping-endpoints)
@@ -627,7 +623,6 @@ Creates a new order for the currently authenticated customer.
 - `items`: Array of objects (required) - The items to be ordered
   - `foodId`: String (required) - The unique identifier of the food item
   - `quantity`: Number (required) - The quantity of the food item
-- `deliveryAddress`: String (required) - The delivery address for the order
 
 **Response:**
 
