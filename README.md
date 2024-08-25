@@ -755,8 +755,7 @@ All endpoints may return the following error responses:
 
 To prevent abuse, API requests are subject to rate limiting. The current limits are:
 
-- 100 requests per minute for authenticated users
-- 20 requests per minute for unauthenticated users
+- 100 requests 15 minutes
 
 ### Versioning
 
